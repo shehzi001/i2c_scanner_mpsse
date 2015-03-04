@@ -15,3 +15,5 @@ INCLUDE_DIRECTORIES(${MPSSE_INCLUDES})
 ADD_EXECUTABLE(i2c_scanner src/i2c_scan.cpp)
 TARGET_LINK_LIBRARIES(i2c_scanner ${MPSSE_LIBRARY})
 
+ADD_EXECUTABLE(zeno_i2c_devices_scan src/zeno_i2c_devices_scan.cpp)
+TARGET_LINK_LIBRARIES(zeno_i2c_devices_scan ${MPSSE_LIBRARY})
