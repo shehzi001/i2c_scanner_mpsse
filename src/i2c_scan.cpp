@@ -7,7 +7,9 @@
 #include <iostream>
 #include <iomanip>
 
-#include <mpsse.h>
+extern "C" {
+    #include <mpsse.h>	
+}
 
 #define ACK 0
 
@@ -27,12 +29,11 @@ int main(int argc, char **argv) {
 			if(GetAck(scan) == ACK)
 			{
 				
-				std::cout << "Not device found at: " << std::hex << addr<<1 << std::endl;
+				std::cout << "Device found at: " << std::hex << (addr<<1) << std::endl;
 			}
 			else
 			{
-				printf("not found at %x\n" , addr<<1);
-				std::cout << "Not device found at: " << std::hex << addr<<1 << std::endl;
+				//std::cout << "Not device found at: " << std::hex << addr<<1 << std::endl;
 			}
 			Stop(scan);
 		}
