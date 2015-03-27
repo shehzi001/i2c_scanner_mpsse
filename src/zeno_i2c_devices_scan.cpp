@@ -61,16 +61,18 @@ class ZenoI2CInterface
         }
 
         bool isACKRecieved() {
-            if((GetAck(i2c_interface_) == 1) && is_i2c_interface_open_) {
+            if((GetAck(i2c_interface_) == 0) && is_i2c_interface_open_) {
                 return true;
             }
             return false;
         }
 
-        bool sendAck() {
+        bool sendAck(int ack) {
             if(is_i2c_interface_open_) {
-                SetAck(i2c_interface_, 1);
+                SetAck(i2c_interface_, ack);
+                return true;
             }
+            return false;
         }
 
         void sendCommand(char device_id, bool read_write) 
@@ -115,59 +117,50 @@ int main(int argc, char **argv) {
 
     ZenoI2CInterface zeno_i2c_interface;
 
+    std::cout << "Zeno I2C interface started" << std::endl;
+
     if(zeno_i2c_interface.initilizeI2CInterface()) {
         std::cout << "(null) initialized at 400000Hz (I2C)" << std::endl;
         sleep(1.0);
+
+        zeno_i2c_interface.sendStartCondition();
+        usleep(1000);
+        zeno_i2c_interface.sendCommand(devices_address[4], false);
         
+        if(zeno_i2c_interface.isACKRecieved()) {
+            std::cout << "Command: Client sent ack." << std::endl;
+            zeno_i2c_interface.sendData(0x00); //send internal address
+            
+            if(zeno_i2c_interface.isACKRecieved()) {
+                std::cout << "Internal address : Client sent ack." << std::endl;
+                zeno_i2c_interface.sendStartCondition();
+                usleep(1000);
+                zeno_i2c_interface.sendCommand(devices_address[4], true);
+                
+                if(zeno_i2c_interface.isACKRecieved()) {
+                    std::cout << "Command after repeat start : Client sent ack." << std::endl;
+                    char register_value = zeno_i2c_interface.readData();
+                    std::cout << "Data read successfull" << std::hex << register_value <<std::endl;
+                    zeno_i2c_interface.sendAck(1);
+                    usleep(1000);
+                } else {
+                    std::cout << "Command after repeat start : failed" << std::endl;
+                }
+
+            } else {
+                std::cout << "Internal address : failed" << std::endl;
+            }
+
+        } else {
+            std::cout << "Command after start : failed" << std::endl;
+        }
+
+        usleep(1000);
+        zeno_i2c_interface.sendStopCondition();
+        usleep(1000);
         zeno_i2c_interface.closeI2CInterface();
     }
 
-    
-
-
-    /*
-    if((scan = MPSSE(I2C, FOUR_HUNDRED_KHZ, LSB)) != NULL && scan->open)
-    {       
-                std::cout << "(null) initialized at 400000Hz (I2C)" << std::endl;
-        int addr;
-        for (int device_index = 0; device_index < 8; device_index++)
-        {       
-                        addr = devices_address[device_index];
-            char addr_wr = addr << 1;
-            Start(scan);
-                        std::cout << "writing write command:" << Write(scan, &addr_wr, 1) << std::endl;
-            
-           if(GetAck(scan) == ACK)
-            {   std::cout << "base: (" << std::hex << (addr) << "), "<< std::endl;
-                                std::cout << "wr: (" << std::hex << (addr<<1) << "), "<< std::endl;
-                   
-                                addr_wr = (0x01);
-                                std::cout << "writing internal address:" << Write(scan, &addr_wr, 1) << std::endl;
-
-                                if (GetAck(scan) == ACK)
-                                  {                  
-                                    //std::cout << "internal address recieved by the device" << std::endl;
-                                    addr_wr = (addr << 1) | (0x01);
-                                    Start(scan);
-                                    std::cout << "writing read command:" << Write(scan, &addr_wr, 1) << std::endl;
-                                    //Write(scan, &addr_wr, 1);
-
-                                    if(GetAck(scan) == ACK)
-                                      {  char *data = NULL;
-                                          usleep(1000);
-                                          data = Read(scan, 1);
-                                          SetAck(scan, 1); 
-                                          std::cout << "rd: (" << std::hex << ((addr<<1)| 0x01) << "), ";
-                                      }
-                                   }
-                                
-                                  std::cout << std::endl;
-                        }
-                        Stop(scan);
-                        sleep(1.0); 
-                }
-                
-    }
-    Close(scan);*/
+    std::cout << "Zeno I2C interface exiting" << std::endl;
     return 0;
 }
