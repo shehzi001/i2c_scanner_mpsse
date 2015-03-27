@@ -6,11 +6,16 @@
  */
 #include <iostream>
 #include <iomanip>
+#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 extern "C" {
     #include <mpsse.h>  
 }
 
+#define FOUT	"eeprom.bin"	// Output file
+#define WCMD	"\xA6\x00\x00"	// Write start address command
+#define RCMD	"\xA7"	// Read command
 #define ACK 0
 int devices_address[8]= {0x03, 0x1E, 0x20, 0x48, 0x53, 0x69, 0x6D, 0x70};
 
@@ -77,13 +82,15 @@ class ZenoI2CInterface
 
         void sendCommand(char device_id, bool read_write) 
         {
-            char data_temp;
+            //char data_temp;
             if(read_write) {
-                data_temp = ((device_id << 1) | (0x01));
+                //data_temp = ((device_id << 1) | (0x01));
+                Write(i2c_interface_, RCMD, sizeof(RCMD) - 1);
             } else {
-                data_temp = (device_id << 1);
+                Write(i2c_interface_, WCMD, sizeof(WCMD) - 1);
+                //data_temp = (device_id << 1);
             }
-            sendData(data_temp);
+            //sendData(data_temp);
         }
        
         void sendData(char data)
@@ -95,9 +102,22 @@ class ZenoI2CInterface
 
         char readData()
         {
-            if(is_i2c_interface_open_) {
-                char *temp_data;
-                temp_data = Read(i2c_interface_, 1);
+            if(is_i2c_interface_open_) {   
+                char *temp_data = NULL;
+                temp_data = Read(i2c_interface_, 10);
+                if(temp_data) {
+                   std::cout << "Read Successful" << std::endl;
+                   fp = fopen(FOUT, "wb");
+                   if(fp)
+                   {
+                        fwrite(temp_data, 1, 10, fp);
+                        fclose(fp);
+                        printf("Dumped %d bytes to %s\n", 1, FOUT);
+		   }
+                   free(temp_data);
+                } else {
+                   std::cout << "Read Failed" << std::endl;
+                }
                 return *temp_data;
             }
         }
@@ -111,6 +131,7 @@ class ZenoI2CInterface
         struct mpsse_context *i2c_interface_;
         bool is_i2c_interface_open_;
         char device_id;
+        FILE *fp = NULL;
 };
 
 int main(int argc, char **argv) {
