@@ -14,42 +14,101 @@ extern "C" {
 #define ACK 0
 int devices_address[8]= {0x03, 0x1E, 0x20, 0x48, 0x53, 0x69, 0x6D, 0x70};
 
-class ZenoI2CInterface:
-        scan(NULL)
+class ZenoI2CInterface
 {
     public:
         /**
          * Ctor.
          */
-        ZenoI2CInterface() {
+        ZenoI2CInterface(): i2c_interface_(NULL)
+        {
             is_i2c_interface_open_ = false;
         }
 
         /**
          * Dtor.
          */
-        ~ZenoI2CInterface() {
-            closeI2CInterface();
+        ~ZenoI2CInterface()
+        {
         }
 
-        bool initilizeI2CInterface() {
-
+        bool initilizeI2CInterface()
+        {
             if((i2c_interface_ = MPSSE(I2C, FOUR_HUNDRED_KHZ, LSB)) != NULL && i2c_interface_->open)
             { 
-                is_i2c_interface_open = true;
+                is_i2c_interface_open_ = true;
                 return true;
-            } else {
-                return false;
+            } 
+            return false;
+        }
+
+        bool sendStartCondition()
+        {
+            if(is_i2c_interface_open_) {
+                Start(i2c_interface_);
+                return true;
+            }
+            return false;
+        }
+
+        bool sendStopCondition()
+        {
+            if(is_i2c_interface_open_) {
+                Stop(i2c_interface_);
+                return true;
+            }
+            return false;
+        }
+
+        bool isACKRecieved() {
+            if((GetAck(i2c_interface_) == 1) && is_i2c_interface_open_) {
+                return true;
+            }
+            return false;
+        }
+
+        bool sendAck() {
+            if(is_i2c_interface_open_) {
+                SetAck(i2c_interface_, 1);
             }
         }
 
-        void closeI2CInterface() {
+        void sendCommand(char device_id, bool read_write) 
+        {
+            char data_temp;
+            if(read_write) {
+                data_temp = ((device_id << 1) | (0x01));
+            } else {
+                data_temp = (device_id << 1);
+            }
+            sendData(data_temp);
+        }
+       
+        void sendData(char data)
+        {
+            if(is_i2c_interface_open_) {
+                Write(i2c_interface_, &data, 1);
+            }
+        }
+
+        char readData()
+        {
+            if(is_i2c_interface_open_) {
+                char *temp_data;
+                temp_data = Read(i2c_interface_, 1);
+                return *temp_data;
+            }
+        }
+
+        void closeI2CInterface()
+        {
             Close(i2c_interface_);
         }
 
     private:
         struct mpsse_context *i2c_interface_;
         bool is_i2c_interface_open_;
+        char device_id;
 };
 
 int main(int argc, char **argv) {
@@ -59,8 +118,11 @@ int main(int argc, char **argv) {
     if(zeno_i2c_interface.initilizeI2CInterface()) {
         std::cout << "(null) initialized at 400000Hz (I2C)" << std::endl;
         sleep(1.0);
+        
         zeno_i2c_interface.closeI2CInterface();
     }
+
+    
 
 
     /*
