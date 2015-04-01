@@ -13,9 +13,6 @@ extern "C" {
     #include <mpsse.h>  
 }
 
-#define FOUT	"eeprom.bin"	// Output file
-#define WCMD	"\xA6\x00\x00"	// Write start address command
-#define RCMD	"\xA7"	// Read command
 #define ACK 0
 int devices_address[8]= {0x03, 0x1E, 0x20, 0x48, 0x53, 0x69, 0x6D, 0x70};
 
@@ -25,9 +22,11 @@ class ZenoI2CInterface
         /**
          * Ctor.
          */
-        ZenoI2CInterface(): i2c_interface_(NULL)
+        ZenoI2CInterface(int vid=0x403, int pid=0x6011): i2c_interface_(NULL)
         {
             is_i2c_interface_open_ = false;
+            vid_ = vid;
+            pid_ = pid;
         }
 
         /**
@@ -39,8 +38,9 @@ class ZenoI2CInterface
 
         bool initilizeI2CInterface()
         {
-            if((i2c_interface_ = MPSSE(I2C, FOUR_HUNDRED_KHZ, LSB)) != NULL && i2c_interface_->open)
-            { 
+            i2c_interface_ =  Open(vid_, pid_ , I2C, FOUR_HUNDRED_KHZ, MSB, IFACE_B, NULL);
+            if(i2c_interface_->open)
+            {
                 is_i2c_interface_open_ = true;
                 return true;
             } 
@@ -80,17 +80,15 @@ class ZenoI2CInterface
             return false;
         }
 
-        void sendCommand(char device_id, bool read_write) 
+        void sendCommand(int device_id, bool write_read) 
         {
-            //char data_temp;
-            if(read_write) {
-                //data_temp = ((device_id << 1) | (0x01));
-                Write(i2c_interface_, RCMD, sizeof(RCMD) - 1);
+            char command;
+            if(write_read) {
+                command = (device_id << 1);
             } else {
-                Write(i2c_interface_, WCMD, sizeof(WCMD) - 1);
-                //data_temp = (device_id << 1);
+                command = ((device_id << 1) | (0x01));
             }
-            //sendData(data_temp);
+            sendData(command);
         }
        
         void sendData(char data)
@@ -100,26 +98,22 @@ class ZenoI2CInterface
             }
         }
 
-        char readData()
+        bool readData()
         {
+            unsigned int data;
             if(is_i2c_interface_open_) {   
-                char *temp_data = NULL;
-                temp_data = Read(i2c_interface_, 10);
-                if(temp_data) {
+                char *data = NULL;
+                data = Read(i2c_interface_, 1);
+                if(data) {
                    std::cout << "Read Successful" << std::endl;
-                   fp = fopen(FOUT, "wb");
-                   if(fp)
-                   {
-                        fwrite(temp_data, 1, 10, fp);
-                        fclose(fp);
-                        printf("Dumped %d bytes to %s\n", 1, FOUT);
-		   }
-                   free(temp_data);
-                } else {
+                   unsigned int data_temp = ((unsigned int)(*data)) & 0xFF;
+                   std::cout << "i2c read data: "  << std::hex << data_temp << std::endl;
+                   free(data);
+                   return true; 
+                } 
                    std::cout << "Read Failed" << std::endl;
-                }
-                return *temp_data;
             }
+           return false;
         }
 
         void closeI2CInterface()
@@ -131,7 +125,8 @@ class ZenoI2CInterface
         struct mpsse_context *i2c_interface_;
         bool is_i2c_interface_open_;
         char device_id;
-        FILE *fp = NULL;
+        int vid_;
+        int pid_;
 };
 
 int main(int argc, char **argv) {
@@ -142,11 +137,11 @@ int main(int argc, char **argv) {
 
     if(zeno_i2c_interface.initilizeI2CInterface()) {
         std::cout << "(null) initialized at 400000Hz (I2C)" << std::endl;
-        sleep(1.0);
-
+      for (int i=0; i<5; i++) 
+       {
         zeno_i2c_interface.sendStartCondition();
         usleep(1000);
-        zeno_i2c_interface.sendCommand(devices_address[4], false);
+        zeno_i2c_interface.sendCommand(devices_address[4], true);
         
         if(zeno_i2c_interface.isACKRecieved()) {
             std::cout << "Command: Client sent ack." << std::endl;
@@ -156,12 +151,12 @@ int main(int argc, char **argv) {
                 std::cout << "Internal address : Client sent ack." << std::endl;
                 zeno_i2c_interface.sendStartCondition();
                 usleep(1000);
-                zeno_i2c_interface.sendCommand(devices_address[4], true);
+                zeno_i2c_interface.sendCommand(devices_address[4], false);
                 
                 if(zeno_i2c_interface.isACKRecieved()) {
                     std::cout << "Command after repeat start : Client sent ack." << std::endl;
-                    char register_value = zeno_i2c_interface.readData();
-                    std::cout << "Data read successfull" << std::hex << register_value <<std::endl;
+                    bool read_success = zeno_i2c_interface.readData();
+                    //std::cout << "Data read successfull" << std::hex << register_value <<std::endl;
                     zeno_i2c_interface.sendAck(1);
                     usleep(1000);
                 } else {
@@ -179,7 +174,9 @@ int main(int argc, char **argv) {
         usleep(1000);
         zeno_i2c_interface.sendStopCondition();
         usleep(1000);
-        zeno_i2c_interface.closeI2CInterface();
+       }
+       usleep(1000);
+       zeno_i2c_interface.closeI2CInterface();
     }
 
     std::cout << "Zeno I2C interface exiting" << std::endl;
