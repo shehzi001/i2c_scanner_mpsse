@@ -37,10 +37,9 @@ int main(int argc, char **argv) {
 	if(scan->open)
 	{       
                 std::cout << "(null) initialized at 400000Hz (I2C)" << std::endl;
-		
                 int addr;
 		for (int device_index = 0; device_index < 6; device_index++)
-		{     
+		{                        
 			char addr_wr = DEVICE_ID << 1;
 			Start(scan);
                         std::cout << "Sending slave+write command:" << Write(scan, &addr_wr, 1) << std::endl;
@@ -66,9 +65,7 @@ int main(int argc, char **argv) {
                             }
                             std::cout << std::endl;
                         }
-                        //sleep(1);
                         Stop(scan);
-                        //sleep(1.0);
                   }
           
 	}
