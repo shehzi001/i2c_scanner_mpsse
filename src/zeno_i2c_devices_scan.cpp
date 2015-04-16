@@ -47,6 +47,32 @@ class ZenoI2CInterface
             return false;
         }
 
+        bool readDevice(int device_id, char register_address, unsigned int *read_data)
+        {
+            bool is_read_successfull= false;
+            int no_of_read_try_ = 2;
+            for (int index=0; index < no_of_read_try_; index++) {
+                sendStartCondition();
+                sendCommand(device_id, true);
+        
+                if(isACKRecieved()) {
+                    sendData(register_address);          
+                    if(isACKRecieved()) {
+                        sendStartCondition();
+                        sendCommand(device_id, false);
+ 
+                        if(isACKRecieved()) {
+                             is_read_successfull = readData(read_data);
+                             sendAck(1);
+                    } 
+                } 
+            } 
+            sendStopCondition();
+            if (is_read_successfull) break;
+          }
+            return is_read_successfull;
+        }
+
         bool sendStartCondition()
         {
             if(is_i2c_interface_open_) {
@@ -98,22 +124,22 @@ class ZenoI2CInterface
             }
         }
 
-        bool readData()
+        bool readData(unsigned int *read_data)
         {
-            unsigned int data;
+            unsigned int temp_data;
             if(is_i2c_interface_open_) {   
                 char *data = NULL;
                 data = Read(i2c_interface_, 1);
                 if(data) {
-                   std::cout << "Read Successful" << std::endl;
-                   unsigned int data_temp = ((unsigned int)(*data)) & 0xFF;
-                   std::cout << "i2c read data: "  << std::hex << data_temp << std::endl;
+                   //std::cout << "Read Successful" << std::endl;
+                   temp_data = ((unsigned int)(*data)) & 0xFF;
+                   //std::cout << "i2c read data: "  << std::hex << temp_data << std::endl;
                    free(data);
+                   *read_data = temp_data;
                    return true; 
-                } 
-                   std::cout << "Read Failed" << std::endl;
-            }
-           return false;
+                }
+            } 
+            return false;
         }
 
         void closeI2CInterface()
@@ -137,45 +163,18 @@ int main(int argc, char **argv) {
 
     if(zeno_i2c_interface.initilizeI2CInterface()) {
         std::cout << "(null) initialized at 400000Hz (I2C)" << std::endl;
-      for (int i=0; i<5; i++) 
-       {
-        zeno_i2c_interface.sendStartCondition();
-        usleep(1000);
-        zeno_i2c_interface.sendCommand(devices_address[4], true);
-        
-        if(zeno_i2c_interface.isACKRecieved()) {
-            std::cout << "Command: Client sent ack." << std::endl;
-            zeno_i2c_interface.sendData(0x00); //send internal address
-            
-            if(zeno_i2c_interface.isACKRecieved()) {
-                std::cout << "Internal address : Client sent ack." << std::endl;
-                zeno_i2c_interface.sendStartCondition();
-                usleep(1000);
-                zeno_i2c_interface.sendCommand(devices_address[4], false);
-                
-                if(zeno_i2c_interface.isACKRecieved()) {
-                    std::cout << "Command after repeat start : Client sent ack." << std::endl;
-                    bool read_success = zeno_i2c_interface.readData();
-                    //std::cout << "Data read successfull" << std::hex << register_value <<std::endl;
-                    zeno_i2c_interface.sendAck(1);
-                    usleep(1000);
-                } else {
-                    std::cout << "Command after repeat start : failed" << std::endl;
-                }
+           unsigned int data;
+           std::cout << "===================Reading Accelerometer=======================" << std::endl;
+           zeno_i2c_interface.readDevice(0x53, 0x00, &data);
+           std::cout << "i2c read data: "  << std::hex << data << std::endl; 
+           std::cout << "===================Reading Gyroscope=======================" << std::endl;
 
-            } else {
-                std::cout << "Internal address : failed" << std::endl;
-            }
+           zeno_i2c_interface.readDevice(0x69, 0x20, &data);
+           std::cout << "i2c read data: "  << std::hex << data << std::endl;
 
-        } else {
-            std::cout << "Command after start : failed" << std::endl;
-        }
-
-        usleep(1000);
-        zeno_i2c_interface.sendStopCondition();
-        usleep(1000);
-       }
-       usleep(1000);
+           std::cout << "===================Reading Compass=======================" << std::endl;
+           zeno_i2c_interface.readDevice(0x1E, 0x02, &data);
+           std::cout << "i2c read data: "  << std::hex << data << std::endl;
        zeno_i2c_interface.closeI2CInterface();
     }
 
