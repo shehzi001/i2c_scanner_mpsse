@@ -36,6 +36,8 @@ class ZenoI2CInterface
 
         bool writeDevice(int device_id, char register_address, char data);
 
+        void closeI2CInterface();
+
     private:
         bool sendStartCondition();
 
@@ -50,8 +52,6 @@ class ZenoI2CInterface
         void sendData(char data);
 
         bool readData(unsigned int *read_data);
-
-        void closeI2CInterface();
 
     private:
         struct mpsse_context *i2c_interface_;

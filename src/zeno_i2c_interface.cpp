@@ -5,12 +5,12 @@
  * Author: Shehzad Ahmed
  **/
 
-#inlcude<zeno_i2c_interface/zeno_i2c_interface.h>
+#include<zeno_i2c_interface/zeno_i2c_interface.h>
 
 /**
  * Ctor.
  */
-ZenoI2CInterface::ZenoI2CInterface(int vid=0x403, int pid=0x6011): i2c_interface_(NULL)
+ZenoI2CInterface::ZenoI2CInterface(int vid, int pid): i2c_interface_(NULL)
 {
     is_i2c_interface_open_ = false;
     vid_ = vid;
@@ -20,7 +20,7 @@ ZenoI2CInterface::ZenoI2CInterface(int vid=0x403, int pid=0x6011): i2c_interface
 /**
  * Dtor.
  */
-~ZenoI2CInterface::ZenoI2CInterface()
+ZenoI2CInterface::~ZenoI2CInterface()
 {
 }
 

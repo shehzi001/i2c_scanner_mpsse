@@ -5,7 +5,7 @@
  * Author: Shehzad
  */
 #include <iostream>
-#inlcude<zeno_i2c_interface/zeno_i2c_interface.h>
+#include<zeno_i2c_interface/zeno_i2c_interface.h>
 
 int main(int argc, char **argv) {
 
