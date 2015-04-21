@@ -37,75 +37,94 @@ bool ZenoI2CInterface::initilizeI2CInterface()
 
 bool ZenoI2CInterface::readDevice(int device_id, char register_address, unsigned int *data)
 {
-    bool is_read_successfull= false;
+    bool is_read_successful= false;
     int no_of_read_try_ = 2;
     for (int index=0; index < no_of_read_try_; index++) {
         sendStartCondition();
         sendCommand(device_id, true);
 
         if(isACKRecieved()) {
-            sendData(register_address);
+            is_read_successful = sendData(register_address);
 
             if(isACKRecieved()) {
                 sendStartCondition();
                 sendCommand(device_id, false);
 
                 if(isACKRecieved()) {
-                     is_read_successfull = readData(data);
+                     is_read_successful = readData(data);
                      sendAck(1);
                 }
             }
         }
         sendStopCondition();
-        if (is_read_successfull) break;
+        if (is_read_successful) break;
     }
-    return is_read_successfull;
+    return is_read_successful;
 }
 
 bool ZenoI2CInterface::writeDevice(int device_id, char register_address, char data)
 {
-    bool is_write_successfull= false;
-    /*
-     * TODO
-     */
+    bool is_write_successful= false;
+    sendStartCondition();
+    sendCommand(device_id, true);
 
-    return is_write_successfull;
+    if(isACKRecieved()) {
+        is_read_successful = sendData(register_address);
+            if(isACKRecieved()) {
+                 is_write_successful = sendData(data);
+            }
+        }
+
+    sendStopCondition();
+
+    return is_write_successful;
 }
 
 bool ZenoI2CInterface::sendStartCondition()
 {
-    if(is_i2c_interface_open_) {
-        Start(i2c_interface_);
-        return true;
-    }
-    return false;
+    bool success= false;
+
+    if(!is_i2c_interface_open_) return success;
+
+    Start(i2c_interface_);
+    
+    return !success;
 }
 
 bool ZenoI2CInterface::sendStopCondition()
 {
-    if(is_i2c_interface_open_) {
-        Stop(i2c_interface_);
-        return true;
-    }
-    return false;
+    bool success= false;
+
+    if(!is_i2c_interface_open_) return success;
+
+    Stop(i2c_interface_);
+
+    return !success;
 }
 
-bool ZenoI2CInterface::isACKRecieved() {
-    if((GetAck(i2c_interface_) == 0) && is_i2c_interface_open_) {
-        return true;
-    }
-    return false;
+bool ZenoI2CInterface::isACKRecieved()
+{
+    bool success= false;
+
+    if(!is_i2c_interface_open_) return success;
+
+    if(GetAck(i2c_interface_) == 0)
+        success = true;
+
+    return success;
 }
 
-bool ZenoI2CInterface::sendAck(int ack) {
-    if(is_i2c_interface_open_) {
-        SetAck(i2c_interface_, ack);
-        return true;
-    }
-    return false;
+bool ZenoI2CInterface::sendAck(int ack)
+{
+    bool success= false;
+
+    if(!is_i2c_interface_open_) return success;
+    
+    SetAck(i2c_interface_, ack);
+    return !success;
 }
 
-void ZenoI2CInterface::sendCommand(int device_id, bool write_read) 
+bool ZenoI2CInterface::sendCommand(int device_id, bool write_read) 
 {
     char command;
     if(write_read) {
@@ -113,33 +132,46 @@ void ZenoI2CInterface::sendCommand(int device_id, bool write_read)
     } else {
         command = ((device_id << 1) | (0x01));
     }
-    sendData(command);
+    return sendData(command);
 }
 
-void ZenoI2CInterface::sendData(char data)
+bool ZenoI2CInterface::sendData(char data)
 {
-    if(is_i2c_interface_open_) {
-        Write(i2c_interface_, &data, 1);
+    bool success= false;
+
+    if(!is_i2c_interface_open_) return success;
+
+    if(Write(i2c_interface_, &data, 1) == 0) {
+        success = true;
     }
+
+    return success;
 }
 
 bool ZenoI2CInterface::readData(unsigned int *read_data)
 {
+    bool success= false;
+
+    if(!is_i2c_interface_open_) return success;
+
     unsigned int temp_data;
-    if(is_i2c_interface_open_) {   
-        char *data = NULL;
-        data = Read(i2c_interface_, 1);
-        if(data) {
-           temp_data = ((unsigned int)(*data)) & 0xFF;
-           free(data);
-           *read_data = temp_data;
-           return true; 
-        }
-    } 
-    return false;
+    char *data = NULL;
+    data = Read(i2c_interface_, 1);
+    if(data) {
+       temp_data = ((unsigned int)(*data)) & 0xFF;
+       *read_data = temp_data;
+       success = true; 
+    }
+    free(data);
+    return success;
 }
 
-void ZenoI2CInterface::closeI2CInterface()
+bool ZenoI2CInterface::closeI2CInterface()
 {
+    bool success= false;
+    if (!is_i2c_interface_open_) return success;
+
     Close(i2c_interface_);
+    is_i2c_interface_open_ = false;
+    return !success;
 }

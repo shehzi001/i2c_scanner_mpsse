@@ -36,7 +36,7 @@ class ZenoI2CInterface
 
         bool writeDevice(int device_id, char register_address, char data);
 
-        void closeI2CInterface();
+        bool closeI2CInterface();
 
     private:
         bool sendStartCondition();
@@ -47,9 +47,9 @@ class ZenoI2CInterface
 
         bool sendAck(int ack);
 
-        void sendCommand(int device_id, bool write_read);
+        bool sendCommand(int device_id, bool write_read);
        
-        void sendData(char data);
+        bool sendData(char data);
 
         bool readData(unsigned int *read_data);
 
