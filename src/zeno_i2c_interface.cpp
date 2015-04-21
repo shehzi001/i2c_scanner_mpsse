@@ -35,7 +35,7 @@ bool ZenoI2CInterface::initilizeI2CInterface()
     return false;
 }
 
-bool ZenoI2CInterface::readDevice(int device_id, char register_address, unsigned int *data)
+bool ZenoI2CInterface::readDevice(int device_id, char register_address, unsigned int *read_data)
 {
     bool is_read_successful= false;
     int no_of_read_try_ = 2;
@@ -51,7 +51,7 @@ bool ZenoI2CInterface::readDevice(int device_id, char register_address, unsigned
                 sendCommand(device_id, false);
 
                 if(isACKRecieved()) {
-                     is_read_successful = readData(data);
+                     is_read_successful = readData(read_data);
                      sendAck(1);
                 }
             }
@@ -59,6 +59,42 @@ bool ZenoI2CInterface::readDevice(int device_id, char register_address, unsigned
         sendStopCondition();
         if (is_read_successful) break;
     }
+    return is_read_successful;
+}
+
+
+bool ZenoI2CInterface::readDevice(int device_id, char register_address, std::vector<unsigned int> &read_data, int number_of_bytes)
+{
+    bool is_read_successful= false;
+    read_data.resize(number_of_bytes);
+
+    sendStartCondition();
+    sendCommand(device_id, true);
+
+    if(isACKRecieved()) {
+        is_read_successful = sendData(register_address);
+
+        if(isACKRecieved()) {
+            sendStartCondition();
+            sendCommand(device_id, false);
+
+            if(isACKRecieved()) {
+                int i=0;
+                while (i < number_of_bytes) {
+                    is_read_successful = readData(&read_data[i]);
+                    i++;
+                    if (i == number_of_bytes) {
+                        sendAck(1);
+                    } else {
+                        sendAck(0);
+                    }
+                }
+
+            }
+        }
+    }
+    sendStopCondition();
+
     return is_read_successful;
 }
 

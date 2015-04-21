@@ -34,6 +34,11 @@ class ZenoI2CInterface
 
         bool readDevice(int device_id, char register_address, unsigned int *read_data);
 
+        bool readDevice(int device_id, char register_address,
+                                          std::vector<unsigned int> &data, 
+                                          int number_of_bytes
+                                        );
+
         bool writeDevice(int device_id, char register_address, char data);
 
         bool closeI2CInterface();
