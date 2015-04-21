@@ -34,3 +34,12 @@ ADD_EXECUTABLE(imu_devices_test
 TARGET_LINK_LIBRARIES(imu_devices_test
   ${MPSSE_LIBRARY}
 )
+
+ADD_EXECUTABLE(i2c_multibyte_read
+  examples/zeno_i2c_multibyte_read.cpp
+  src/zeno_i2c_interface.cpp
+)
+TARGET_LINK_LIBRARIES(i2c_multibyte_read
+  ${MPSSE_LIBRARY}
+)
+
