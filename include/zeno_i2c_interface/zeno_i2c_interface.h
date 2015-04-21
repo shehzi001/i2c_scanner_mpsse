@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <vector>
 extern "C" {
     #include <mpsse.h>  
 }
@@ -34,10 +35,7 @@ class ZenoI2CInterface
 
         bool readDevice(int device_id, char register_address, unsigned int *read_data);
 
-        bool readDevice(int device_id, char register_address,
-                                          std::vector<unsigned int> &data, 
-                                          int number_of_bytes
-                                        );
+        bool readDevice(int device_id, char register_address, std::vector<unsigned int> &data, int number_of_bytes);
 
         bool writeDevice(int device_id, char register_address, char data);
 

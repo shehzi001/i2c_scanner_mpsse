@@ -67,7 +67,8 @@ bool ZenoI2CInterface::readDevice(int device_id, char register_address, std::vec
 {
     bool is_read_successful= false;
     read_data.resize(number_of_bytes);
-
+    int no_of_read_try_ = 2;
+  for (int index=0; index < no_of_read_try_; index++) {
     sendStartCondition();
     sendCommand(device_id, true);
 
@@ -84,7 +85,7 @@ bool ZenoI2CInterface::readDevice(int device_id, char register_address, std::vec
                     is_read_successful = readData(&read_data[i]);
                     i++;
                     if (i == number_of_bytes) {
-                        sendAck(1);
+                        sendAck(1); break;
                     } else {
                         sendAck(0);
                     }
@@ -94,8 +95,8 @@ bool ZenoI2CInterface::readDevice(int device_id, char register_address, std::vec
         }
     }
     sendStopCondition();
-
-    return is_read_successful;
+   }
+   return is_read_successful;
 }
 
 bool ZenoI2CInterface::writeDevice(int device_id, char register_address, char data)

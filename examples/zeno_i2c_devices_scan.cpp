@@ -32,16 +32,20 @@ int main(int argc, char **argv) {
         std::cout << "(null) initialized at 400000Hz (I2C)" << std::endl;
            unsigned int data;
            std::cout << "===================Reading Accelerometer=======================" << std::endl;
-           zeno_i2c_interface.readDevice(0x53, 0x00, &data);
-           std::cout << "i2c read data: "  << std::hex << data << std::endl; 
+           bool success = false; 
+           success = zeno_i2c_interface.readDevice(0x53, 0x31, &data);
+           if(success)
+             std::cout << "i2c read data: "  << std::hex << data << std::endl; 
            std::cout << "===================Reading Gyroscope=======================" << std::endl;
-
-           zeno_i2c_interface.readDevice(0x69, 0x20, &data);
-           std::cout << "i2c read data: "  << std::hex << data << std::endl;
+           success = false;
+             success = zeno_i2c_interface.readDevice(0x69, 0x20, &data);
+           if(success)
+             std::cout << "i2c read data: "  << std::hex << data << std::endl;
 
            std::cout << "===================Reading Compass=======================" << std::endl;
            zeno_i2c_interface.readDevice(0x1E, 0x02, &data);
-           std::cout << "i2c read data: "  << std::hex << data << std::endl;
+           if (success)
+              std::cout << "i2c read data: "  << std::hex << data << std::endl;
        zeno_i2c_interface.closeI2CInterface();
     }
 
