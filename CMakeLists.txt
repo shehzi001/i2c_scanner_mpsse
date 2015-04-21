@@ -16,12 +16,12 @@ INCLUDE_DIRECTORIES(
 )
 
 ADD_EXECUTABLE(i2c_scanner
-  src/i2c_scan.cpp
+  examples/i2c_scan.cpp
 )
 TARGET_LINK_LIBRARIES(i2c_scanner ${MPSSE_LIBRARY})
 
 ADD_EXECUTABLE(zeno_i2c_devices_scan
-  src/zeno_i2c_devices_scan.cpp
+  examples/zeno_i2c_devices_scan.cpp
   src/zeno_i2c_interface.cpp
 )
 TARGET_LINK_LIBRARIES(zeno_i2c_devices_scan
@@ -29,7 +29,7 @@ TARGET_LINK_LIBRARIES(zeno_i2c_devices_scan
 )
 
 ADD_EXECUTABLE(imu_devices_test
-  src/imu_devices_test.cpp
+  examples/imu_devices_test.cpp
 )
 TARGET_LINK_LIBRARIES(imu_devices_test
   ${MPSSE_LIBRARY}

@@ -7,6 +7,21 @@
 #include <iostream>
 #include<zeno_i2c_interface/zeno_i2c_interface.h>
 
+/* accelerometer
+#define DEVICE_ID 0x53
+#define ADDR_REG  0x00
+*/
+
+/* gyroscope
+#define DEVICE_ID 0x69
+#define ADDR_REG  0x20
+*/
+
+/* compass
+#define DEVICE_ID 0x1E
+#define ADDR_REG  0x02
+*/
+
 int main(int argc, char **argv) {
 
     ZenoI2CInterface zeno_i2c_interface;
