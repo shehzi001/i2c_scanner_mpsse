@@ -69,7 +69,7 @@ bool ZenoI2CInterface::writeDevice(int device_id, char register_address, char da
     sendCommand(device_id, true);
 
     if(isACKRecieved()) {
-        is_read_successful = sendData(register_address);
+        is_write_successful = sendData(register_address);
             if(isACKRecieved()) {
                  is_write_successful = sendData(data);
             }
