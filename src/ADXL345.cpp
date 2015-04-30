@@ -49,7 +49,7 @@ AccelRotation ADXL345::readPitchRoll()
   
   AccelRotation rot;
   
-  rot.pitch = (atan2(accel.x,sqrt(accel.y*accel.y+accel.z*accel.z)) * 180.0) / M_PI;
+  rot.pitch = -(atan2(accel.x,sqrt(accel.y*accel.y+accel.z*accel.z)) * 180.0) / M_PI;
   rot.roll = (atan2(accel.y,(sqrt(accel.x*accel.x+accel.z*accel.z))) * 180.0) / M_PI;
   
   return rot;
