@@ -13,17 +13,17 @@ bool L3G4200D::init(double xoffset, double yoffset, double zoffset)
   _xoffset = xoffset;
   _yoffset = yoffset;
   _zoffset = zoffset;
-/* 
-  writeTo(L3G4200D_CTRL_REG1, 0x1F);
+ 
+  writeTo(L3G4200D_CTRL_REG1, 0x0F);
   writeTo(L3G4200D_CTRL_REG3, 0x08); //Dont override values
   writeTo(L3G4200D_CTRL_REG4, 0x80); 
   writeTo(L3G4200D_CTRL_REG5, 0x40);
-  writeTo(L3G4200D_FIFO_ACT, 0x50);
-*/
+  writeTo(L3G4200D_FIFO_ACT, 0x40);
+/*
   writeTo(L3G4200D_CTRL_REG1, 0x0F);
   writeTo(L3G4200D_CTRL_REG4, 0x80); //Dont override values
   writeTo(L3G4200D_CTRL_REG5, 0x80);
-
+*/
   return true;
 }
 
