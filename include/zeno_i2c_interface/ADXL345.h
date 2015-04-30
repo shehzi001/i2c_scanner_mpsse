@@ -53,7 +53,7 @@ struct AccelRotation
 class ADXL345
 {
   public:
-    ADXL345();
+    ADXL345(const ZenoI2CInterface &zeno_i2c_interface);
     bool init(char x_offset=0, char y_offset=0, char z_offset=0);
     void shutdown();
     void writeTo(char address, char val);

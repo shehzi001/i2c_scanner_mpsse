@@ -1,7 +1,10 @@
 
 #include <zeno_i2c_interface/ADXL345.h>
+#include<zeno_i2c_interface/zeno_i2c_interface.h>
 
-ADXL345::ADXL345()
+ADXL345::ADXL345(const ZenoI2CInterface &zeno_i2c_interface):
+   zeno_i2c_interface_(zeno_i2c_interface)
+  
 {  
   xg =0;
   yg=0;
@@ -12,8 +15,8 @@ ADXL345::ADXL345()
 bool ADXL345::init(char x_offset, char y_offset, char z_offset)
 {
   //zeno_i2c_interface = ZenoI2CInterface();
-  if(!zeno_i2c_interface_.initilizeI2CInterface())
-    return false;
+  //if(!zeno_i2c_interface_.initilizeI2CInterface())
+  //  return false;
 
   writeTo(ADXL345_POWER_CTL, 0x08); 
   writeTo(ADXL345_FIFO_CTL, 0x82);  
@@ -29,7 +32,7 @@ bool ADXL345::init(char x_offset, char y_offset, char z_offset)
 
 void ADXL345::shutdown()
 {
- zeno_i2c_interface_.closeI2CInterface();  
+ //zeno_i2c_interface_.closeI2CInterface();  
 }
 
 void ADXL345::setSoftwareOffset(double x, double y, double z)
