@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(i2c_scanner_mpsse)
+
+FIND_PACKAGE( Boost 1.49 COMPONENTS program_options REQUIRED )
 FIND_LIBRARY(MPSSE_LIBRARY
              NAMES libmpsse mpsse 
              PATHS /usr/lib /usr/local/lib
@@ -10,36 +12,30 @@ FIND_PATH(MPSSE_INCLUDES mpsse.h
           /usr/include
 )
 
+
+FIND_LIBRARY(MPSSE_LIBRARY
+             NAMES libmpsse mpsse 
+             PATHS /usr/lib /usr/local/lib
+)
+
+FIND_PATH(MPSSE_INCLUDES mpsse.h
+          /usr/local/include
+          /usr/include
+)
 INCLUDE_DIRECTORIES(
   ${MPSSE_INCLUDES}
+  ${Boost_INCLUDES}
   include
 )
 
-ADD_EXECUTABLE(i2c_scanner
-  examples/i2c_scan.cpp
-)
-TARGET_LINK_LIBRARIES(i2c_scanner ${MPSSE_LIBRARY})
 
-ADD_EXECUTABLE(zeno_i2c_devices_scan
-  examples/zeno_i2c_devices_scan.cpp
+ADD_EXECUTABLE(zeno_imu_sensor_fusion
+  examples/zeno_imu_sensor_fusion.cpp
+  src/ADXL345.cpp
   src/zeno_i2c_interface.cpp
 )
-TARGET_LINK_LIBRARIES(zeno_i2c_devices_scan
-  ${MPSSE_LIBRARY}
-)
 
-ADD_EXECUTABLE(imu_devices_test
-  examples/imu_devices_test.cpp
-)
-TARGET_LINK_LIBRARIES(imu_devices_test
+TARGET_LINK_LIBRARIES(zeno_imu_sensor_fusion
   ${MPSSE_LIBRARY}
+  ${Boost_LIBRARY}
 )
-
-ADD_EXECUTABLE(i2c_multibyte_read
-  examples/zeno_i2c_multibyte_read.cpp
-  src/zeno_i2c_interface.cpp
-)
-TARGET_LINK_LIBRARIES(i2c_multibyte_read
-  ${MPSSE_LIBRARY}
-)
-
