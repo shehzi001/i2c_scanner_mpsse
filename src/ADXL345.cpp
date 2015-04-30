@@ -16,8 +16,7 @@ bool ADXL345::init(char x_offset, char y_offset, char z_offset)
     return false;
 
   writeTo(ADXL345_POWER_CTL, 0x08); 
-  //writeTo(ADXL345_FIFO_CTL, 0x82); 
- 
+  writeTo(ADXL345_FIFO_CTL, 0x82);  
   writeTo(ADXL345_DATA_FORMAT, 0x0B);
  
   writeTo(ADXL345_OFSX, x_offset);
