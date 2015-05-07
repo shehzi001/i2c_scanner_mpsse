@@ -50,7 +50,7 @@ struct GyroDPS
 class L3G4200D
 {
   public:
-    L3G4200D();
+    L3G4200D(const ZenoI2CInterface &zeno_i2c_interface);
     bool init(double xoffset=0, double yoffset=0, double zoffset=0);
     void shutdown();
     void writeTo(char address, char val);
@@ -71,5 +71,4 @@ class L3G4200D
      double _zoffset;
      ZenoI2CInterface zeno_i2c_interface_;
 };
-
 #endif

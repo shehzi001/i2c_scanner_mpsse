@@ -7,8 +7,8 @@ ADXL345::ADXL345(const ZenoI2CInterface &zeno_i2c_interface):
   
 {  
   xg =0;
-  yg=0;
-  zg=0;
+  yg = 0;
+  zg = 0;
   
 }
 

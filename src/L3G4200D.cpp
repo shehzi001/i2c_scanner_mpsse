@@ -1,15 +1,16 @@
 
 #include <zeno_i2c_interface/L3G4200D.h>
 #include <time.h>
-L3G4200D::L3G4200D()
+L3G4200D::L3G4200D(const ZenoI2CInterface &zeno_i2c_interface):
+    zeno_i2c_interface_(zeno_i2c_interface)
 {
   xg = yg = zg = 0;
 }
 
 bool L3G4200D::init(double xoffset, double yoffset, double zoffset)
 {
-  if(!zeno_i2c_interface_.initilizeI2CInterface())
-    return false;
+  //if(!zeno_i2c_interface_.initilizeI2CInterface())
+  //  return false;
   _xoffset = xoffset;
   _yoffset = yoffset;
   _zoffset = zoffset;
@@ -29,7 +30,7 @@ bool L3G4200D::init(double xoffset, double yoffset, double zoffset)
 
 void L3G4200D::shutdown()
 {
- zeno_i2c_interface_.closeI2CInterface();
+ //zeno_i2c_interface_.closeI2CInterface();
 }
 
 
@@ -154,4 +155,3 @@ void L3G4200D::readFrom(char address, int num, std::vector<unsigned int> &raw_da
 void L3G4200D::printAllRegister() 
 {
 }
-
