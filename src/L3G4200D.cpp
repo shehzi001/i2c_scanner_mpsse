@@ -1,7 +1,7 @@
 
 #include <zeno_i2c_interface/L3G4200D.h>
 #include <time.h>
-L3G4200D::L3G4200D(const ZenoI2CInterface &zeno_i2c_interface):
+L3G4200D::L3G4200D(ZenoI2CInterface &zeno_i2c_interface):
     zeno_i2c_interface_(zeno_i2c_interface)
 {
   xg = yg = zg = 0;
@@ -20,7 +20,7 @@ bool L3G4200D::init(double xoffset, double yoffset, double zoffset)
   writeTo(L3G4200D_CTRL_REG4, 0x80); 
   writeTo(L3G4200D_CTRL_REG5, 0x40);
   writeTo(L3G4200D_FIFO_ACT, 0x40);
-/*
+ /*
   writeTo(L3G4200D_CTRL_REG1, 0x0F);
   writeTo(L3G4200D_CTRL_REG4, 0x80); //Dont override values
   writeTo(L3G4200D_CTRL_REG5, 0x80);
@@ -80,6 +80,7 @@ GyroDPS L3G4200D::readGyroDPS()
   raw = readGyro();
   
   double fXg, fYg, fZg;
+  
   fXg = raw.x * 0.00875 + _xoffset;
   fYg = raw.y * 0.00875 + _yoffset;
   fZg = raw.z * 0.00875 + _zoffset;
@@ -94,7 +95,7 @@ GyroDPS L3G4200D::readGyroDPS()
   
   dps.z = fZg * ALPHA_G + (zg * (1.0-ALPHA_G));
   zg = dps.z;
-  //std::cout << "[" << raw.x << "," << raw.y << ","<< raw.z << "," << dps.x << "," << dps.y << "," << dps.z << "]" << std::endl;
+  //std::cout << "[" << raw.x << "," << raw.y << ","<< raw.z << "," << dps.x << "," << dps.y << ","<< dps.z << "]" << std::endl;
   return dps; 
 }
 
@@ -108,33 +109,19 @@ GyroRaw L3G4200D::readGyro()
   // thus we are converting both bytes in to one int
   GyroRaw raw;
   unsigned int x = data[1];
-  x = (x<<8) | data[0];
+  int16_t  x_t = (x<<8) | (data[0]&0xFC); 
+  
   unsigned int y = data[3];
-  y = (y<<8) | data[2];
+  int16_t y_t = (y<<8) | (data[2]&0xFC);
+
   unsigned int z = data[5];
-  z = (z<<8) | data[4];
-
-  signed int xx;
-  signed int yy;
-  signed int zz;
-  if(x > pow(2, L3G4200D_BIT_MODE))
-    xx = x - (pow(2, L3G4200D_DATA_SIZE) - 1);
-  else
-    xx = x;
-
-   if(y > pow(2, L3G4200D_BIT_MODE))
-      yy = y - (pow(2, L3G4200D_DATA_SIZE) - 1);
-   else
-      yy = y;
-
-   if(z > pow(2, L3G4200D_BIT_MODE))
-      zz = z - (pow(2, L3G4200D_DATA_SIZE) - 1);
-   else
-      zz = z;
-
-  raw.x = xx;
-  raw.y = yy;
-  raw.z = zz;
+  int16_t z_t = (z<<8) | (data[4]&0XFC);
+  
+  raw.x = x_t;
+  raw.y = y_t;
+  raw.z = z_t;
+   
+  //std::cout << "[" << raw.x << "," << raw.y << ","<< raw.z << "]" << std::endl;
   return raw;
 }
 
@@ -149,7 +136,7 @@ void L3G4200D::writeTo(char address, char val)
 void L3G4200D::readFrom(char address, int num, std::vector<unsigned int> &raw_data)
 {
    bool success;
-   success = zeno_i2c_interface_.readGyroDevice(L3G4200D_DEVICE, address, raw_data, num);
+   success = zeno_i2c_interface_.readDevice(L3G4200D_DEVICE, address, raw_data, num);
 }
 
 void L3G4200D::printAllRegister() 

@@ -2,14 +2,13 @@
 #include <zeno_i2c_interface/ADXL345.h>
 #include<zeno_i2c_interface/zeno_i2c_interface.h>
 
-ADXL345::ADXL345(const ZenoI2CInterface &zeno_i2c_interface):
+ADXL345::ADXL345(ZenoI2CInterface &zeno_i2c_interface):
    zeno_i2c_interface_(zeno_i2c_interface)
   
 {  
-  xg =0;
+  xg = 0;
   yg = 0;
   zg = 0;
-  
 }
 
 bool ADXL345::init(char x_offset, char y_offset, char z_offset)
@@ -120,7 +119,8 @@ AccelG ADXL345::readAccelG()
   
   res.z = fZg * ALPHA + (zg * (1.0-ALPHA));
   zg = res.z;
-  
+//  std::cout << "acc[" << raw.x << "," << raw.y << ","<< raw.z << "," << res.x << "," << res.y << ","<< res.z << "]" << std::endl;
+ 
   return res;  
   
 }
@@ -136,34 +136,18 @@ AccelRaw ADXL345::readAccel()
   // each axis reading comes in 16 bit resolution, i.e 2 bytes. Least Significat Byte first!!
   // thus we are converting both bytes in to one int
   unsigned int x = data[1];
-  x = (x<<8) | data[0];
+  int16_t x_t = (x<<8) | (data[0]&0xFC);
+ 
   unsigned int y = data[3];
-  y = (y<<8) | data[2];
+  int16_t y_t = (y<<8) | (data[2]&0xFC);
+  
   unsigned int z = data[5];
-  z = (z<<8) | data[4];
-
-  signed int xx;
-  signed int yy;
-  signed int zz;
-  if(x > pow(2, ADXL345_BIT_MODE))
-    xx = x - (pow(2, ADXL345_DATA_SIZE) - 1);
-  else
-    xx = x;
-
-   if(y > pow(2, ADXL345_BIT_MODE))
-      yy = y - (pow(2, ADXL345_DATA_SIZE) - 1);
-   else
-      yy = y;
-
-   if(z > pow(2, ADXL345_BIT_MODE))
-      zz = z - (pow(2, ADXL345_DATA_SIZE) - 1);
-   else
-      zz = z;
-
-  raw.x = xx;
-  raw.y = yy;
-  raw.z = zz;
-
+  int16_t z_t = (z<<8) | (data[4]&0xFC);
+  
+  raw.x = x_t;
+  raw.y = y_t;
+  raw.z = z_t;
+  
   return raw;
 }
 

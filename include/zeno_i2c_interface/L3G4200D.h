@@ -29,7 +29,7 @@
 #define L3G4200D_OUT_Z_L 0x2C
 #define L3G4200D_OUT_Z_H 0x2D
 
-#define ALPHA_G 0.3
+#define ALPHA_G 0.2
 
 #define L3G4200D_BIT_MODE 15  //bits
 #define L3G4200D_DATA_SIZE 16 //bits
@@ -50,7 +50,7 @@ struct GyroDPS
 class L3G4200D
 {
   public:
-    L3G4200D(const ZenoI2CInterface &zeno_i2c_interface);
+    L3G4200D(ZenoI2CInterface &zeno_i2c_interface);
     bool init(double xoffset=0, double yoffset=0, double zoffset=0);
     void shutdown();
     void writeTo(char address, char val);
@@ -69,6 +69,6 @@ class L3G4200D
      double _xoffset;
      double _yoffset;
      double _zoffset;
-     ZenoI2CInterface zeno_i2c_interface_;
+     ZenoI2CInterface &zeno_i2c_interface_;
 };
 #endif
