@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 	if((scan = MPSSE(I2C, FOUR_HUNDRED_KHZ, LSB)) != NULL && scan->open)
 	{
 		int addr;
-		for (addr = 0; addr < 0x7F; ++addr)
+		for (addr = 0; addr < 0x7F; addr++)
 		{
 			char addr_wr = addr << 1;
 			Start(scan);

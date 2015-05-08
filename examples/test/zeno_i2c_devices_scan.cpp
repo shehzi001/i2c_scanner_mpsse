@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
 
     std::cout << "Zeno I2C interface started" << std::endl;
 
-    signed int data;
+    unsigned int data;
     bool success = false;
     if(zeno_i2c_interface.initilizeI2CInterface()) {
         std::cout << "(null) initialized at 400000Hz (I2C)" << std::endl;
@@ -38,11 +38,11 @@ int main(int argc, char **argv) {
         success = zeno_i2c_interface.readDevice(0x69, 0x20, &data);
         success = zeno_i2c_interface.readDevice(0x53, 0x00, &data);
         usleep(10.0);
-        for(int i=0; i<10;i++) {
+        for(int i=0; i<2;i++) {
            data = 5;
            success = false;
 
-           std::cout << "===================Reading IMU=======================" << std::endl;
+           std::cout << "===================Scanning for IMU components=======================" << std::endl;
            success = zeno_i2c_interface.readDevice(0x53, 0x00, &data);
            if(success) {
              std::cout << "Acceleromerter ID:"  << std::hex << data << std::endl;
