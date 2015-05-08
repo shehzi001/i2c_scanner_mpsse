@@ -10,7 +10,8 @@
 /**
  * Ctor.
  */
-ZenoI2CInterface::ZenoI2CInterface(int vid, int pid): i2c_interface_(NULL)
+ZenoI2CInterface::ZenoI2CInterface(int vid, int pid):
+  i2c_interface_(NULL)
 {
     is_i2c_interface_open_ = false;
     vid_ = vid;
@@ -22,6 +23,7 @@ ZenoI2CInterface::ZenoI2CInterface(int vid, int pid): i2c_interface_(NULL)
  */
 ZenoI2CInterface::~ZenoI2CInterface()
 {
+//  closeI2CInterface();
 }
 
 bool ZenoI2CInterface::initilizeI2CInterface()
