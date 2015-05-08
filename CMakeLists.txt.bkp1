@@ -1,0 +1,105 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(i2c_scanner_mpsse)
+FIND_LIBRARY(MPSSE_LIBRARY
+             NAMES libmpsse mpsse 
+             PATHS /usr/lib /usr/local/lib
+)
+
+FIND_PATH(MPSSE_INCLUDES mpsse.h
+          /usr/local/include
+          /usr/include
+)
+
+INCLUDE_DIRECTORIES(
+  ${MPSSE_INCLUDES}
+  include
+)
+
+
+ADD_EXECUTABLE(i2c_multibyte_read
+  examples/zeno_i2c_multibyte_read.cpp
+  src/zeno_i2c_interface.cpp
+)
+TARGET_LINK_LIBRARIES(i2c_multibyte_read
+  ${MPSSE_LIBRARY}
+
+)
+ADD_EXECUTABLE(accelerometer
+  examples/accelerometer.cpp
+  src/zeno_i2c_interface.cpp
+)
+TARGET_LINK_LIBRARIES(accelerometer
+  ${MPSSE_LIBRARY}
+)
+
+ADD_EXECUTABLE(gyroscope
+  examples/gyroscope.cpp
+  src/zeno_i2c_interface.cpp
+)
+TARGET_LINK_LIBRARIES(gyroscope
+  ${MPSSE_LIBRARY}
+)
+ADD_EXECUTABLE(compass
+  examples/compass.cpp
+  src/zeno_i2c_interface.cpp
+)
+TARGET_LINK_LIBRARIES(compass
+  ${MPSSE_LIBRARY}
+)
+
+ADD_EXECUTABLE(imu_accelerometer
+  examples/imu_accelerometer.cpp
+  src/zeno_i2c_interface.cpp
+)
+TARGET_LINK_LIBRARIES(imu_accelerometer
+  ${MPSSE_LIBRARY}
+)
+
+ADD_EXECUTABLE(imu_gyroscope
+  examples/imu_gyroscope.cpp
+  src/zeno_i2c_interface.cpp
+)
+TARGET_LINK_LIBRARIES(imu_gyroscope
+  ${MPSSE_LIBRARY}
+)
+
+ADD_EXECUTABLE(imu_compass
+  examples/imu_compass.cpp
+  src/zeno_i2c_interface.cpp
+)
+TARGET_LINK_LIBRARIES(imu_compass
+  ${MPSSE_LIBRARY}
+)
+
+ADD_EXECUTABLE(zeno_imu
+  examples/zeno_imu.cpp
+  src/ADXL345.cpp
+  src/L3G4200D.cpp
+  src/zeno_i2c_interface.cpp
+)
+
+TARGET_LINK_LIBRARIES(zeno_imu
+  ${MPSSE_LIBRARY}
+)
+
+ADD_EXECUTABLE(zeno_imu_accelerometer
+  examples/zeno_imu_accelerometer.cpp
+  src/ADXL345.cpp
+  src/zeno_i2c_interface.cpp
+)
+
+TARGET_LINK_LIBRARIES(zeno_imu_accelerometer
+  ${MPSSE_LIBRARY}
+)
+
+ADD_EXECUTABLE(zeno_imu_gyro
+  examples/zeno_imu_gyro.cpp
+  src/L3G4200D.cpp
+  src/zeno_i2c_interface.cpp
+)
+
+TARGET_LINK_LIBRARIES(zeno_imu_gyro
+  ${MPSSE_LIBRARY}
+)
+
+
